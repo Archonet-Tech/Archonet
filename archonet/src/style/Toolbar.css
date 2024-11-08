@@ -1,0 +1,201 @@
+/* Toolbar styles */
+.toolbar {
+  position: absolute;
+  top: 100px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 10px;
+  border-radius: 8px;
+  z-index: 1000; /* Ensure the toolbar is on top */
+  max-width: 200px; /* Limit the width of the toolbar */
+}
+
+.toolbar-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-size: 24px;
+  margin: 5px;
+}
+
+/* Site boundary styles */
+.site-boundary {
+  position: relative;
+  max-width: 800px; /* Limit the width of the site boundary */
+  margin: 0 auto; /* Center the site boundary */
+}
+
+.site-image {
+  width: 100%;
+  display: block;
+}
+
+.highlighted-area {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Specific area styles */
+.plant-area {
+  position: absolute;
+  top: 10%; /* Adjust based on your image */
+  left: 10%; /* Adjust based on your image */
+  width: 20%; /* Adjust based on your image */
+  height: 20%; /* Adjust based on your image */
+  background-color: rgba(0, 255, 0, 0.5); /* Green with transparency */
+}
+
+.work-area {
+  position: absolute;
+  top: 30%; /* Adjust based on your image */
+  left: 30%; /* Adjust based on your image */
+  width: 40%; /* Adjust based on your image */
+  height: 40%; /* Adjust based on your image */
+  background-color: rgba(255, 255, 0, 0.5); /* Yellow with transparency */
+}
+
+/* Highlighted elements */
+.highlighted-area .tree {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: green;
+  border-radius: 50%;
+}
+
+.highlighted-area .site-element {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: blue;
+}
+
+.highlighted-area .non-developer-area {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: red;
+}
+.toolbar-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  transition: color 0.3s;
+}
+
+.toolbar-btn svg {
+  width: 24px;
+  height: 24px;
+  color: black; /* Default color */
+  transition: color 0.3s;
+}
+
+.toolbar-btn.active svg {
+  color: red; /* Color when active */
+}
+/* Toolbar.css */
+.toolbar-btn.highlight svg {
+  color: orange; /* Highlight color for guiding the user */
+}
+.toolbar {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+  background-color: #fff;
+  border-bottom: 1px solid #ccc;
+}
+
+.toolbar-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.toolbar-btn.active {
+  color: #D20C0C;
+}
+
+.toolbar-btn.highlight {
+  animation: highlight 1s ease-in-out infinite;
+}
+
+@keyframes highlight {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.toolbar-btn {
+  margin: 5px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.toolbar-btn.highlight {
+  border: 2px solid red;
+}
+
+.toolbar-btn.active {
+  background-color: #eaeaea;
+}
+.toolbar-btn.active {
+  background-color: #007cbf;
+  color: white;
+}
+
+.toolbar-btn:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+.length-marker {
+  background-color: #fff;
+  padding: 2px 6px;
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.map-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.area-lengths-display {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  background-color: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}

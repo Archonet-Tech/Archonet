@@ -1,0 +1,167 @@
+.user-account {
+  display: flex;
+  align-items: center; /* Align items vertically centered */
+  justify-content: space-between; /* Space between profile pic and buttons */
+  position: relative;
+}
+
+.profile-pic img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.user-options {
+  display: flex;
+  align-items: center; /* Align buttons vertically centered */
+}
+
+.user-options button {
+  background-color: #2d3a48;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin: 0 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.user-options button:hover {
+  background-color: #1e282f;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7); /* Dark overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it appears above other elements */
+}
+.success-message {
+  background-color: #dff0d8; /* Light green background */
+  color: #3c763d; /* Dark green text */
+  padding: 10px;
+  border: 1px solid #d6e9c6; /* Light green border */
+  border-radius: 5px;
+  margin-top: 10px;
+  animation: fadeIn 0.5s, fadeOut 0.5s 2.5s; /* Fade in and out */
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+
+.modal-content {
+  background-color: white;
+  padding: 40px; /* Increased padding for a larger modal */
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  width: 400px; /* Set a width for the modal */
+  text-align: center;
+}
+
+.modal-title {
+  font-size: 24px; /* Larger font size for the title */
+  color: #003366; /* Dark blue color */
+  margin-bottom: 20px; /* Spacing below the title */
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-content button {
+  margin: 5px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.modal-content button:hover {
+  background-color: #007bff; /* Change hover color for modal buttons */
+  color: white;
+}
+
+/* Additional styles for login button in modal */
+.modal-content button:first-of-type {
+  background-color: #2d3a48; /* Same as user-options button */
+}
+
+.modal-content button:first-of-type:hover {
+  background-color: #1e282f; /* Same hover effect as user-options button */
+}
+@media (max-width: 500px) {
+  .modal-content {
+    width: 90%; /* Adjust width for smaller screens */
+  }
+}
+.user-options button:focus,
+.modal-content button:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+.modal-content button:last-of-type:hover {
+  background-color: #ff4d4d; /* Light red hover for cancel */
+  color: white;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-title {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.logged-in-message {
+  padding: 10px;
+  font-size: 16px;
+  color: #333;
+}
+

@@ -1,0 +1,81 @@
+.header {
+  display: flex;
+  align-items: center;
+  background-color: #2d3a48;
+  padding: 15px 40px; /* Adjusted padding for better alignment */
+  color: white;
+  justify-content: space-between;
+}
+
+.logo {
+  width: 90px;
+  height: 85px;
+}
+
+.notification {
+  background-color: #ffdddd;
+  color: #d8000c;
+  padding: 10px 15px; /* Adjusted padding for balanced size */
+  border-radius: 20px; /* Slightly reduced border radius */
+  margin-left: 30px;
+  width: 420px; /* Keep this if needed */
+  font-size: larger;
+  font-weight: 700; /* Keep bold for emphasis */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Added shadow for depth */
+}
+
+.progress-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 15px; /* Increased space between steps for better clarity */
+  flex-grow: 1;
+  margin-left: 20px; /* Reduced to prevent overlap with the logo */
+}
+
+.step {
+  padding: 10px 15px; /* Adjusted padding for compactness */
+  border: 3px solid red;
+  border-radius: 15px; /* Slightly rounded for better aesthetics */
+  background-color: transparent;
+  color: white;
+  text-align: center;
+  min-width: 80px; /* Ensuring step size is manageable */
+  transition: background-color 0.3s ease;
+}
+
+.step.completed {
+  background-color: white;
+  color: red;
+}
+
+.logout-btn {
+  margin-left: 20px; /* Adjust spacing for consistent look */
+  padding: 8px 12px; /* Slightly adjusted padding */
+  background-color: #ff4c4c; /* Example color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease; /* Added transition for hover effect */
+}
+
+.logout-btn:hover {
+  background-color: #e03e3e; /* Darker shade for hover */
+}
+.logout-btn {
+  margin-left: 20px; /* Adjust spacing for consistent look */
+  padding: 8px 12px; /* Slightly adjusted padding */
+  background-color: #ff4c4c; /* Example color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease; /* Added transition for hover effect */
+}
+
+.logout-btn:hover {
+  background-color: #e03e3e; /* Darker shade for hover */
+}

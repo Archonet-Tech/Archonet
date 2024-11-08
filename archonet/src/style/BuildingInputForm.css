@@ -1,0 +1,49 @@
+/* BuildingInputForm.css */
+.building-input-form {
+    position: absolute;
+    top: 80px; /* Adjust based on your layout */
+    left: 20px; /* Adjust based on your layout */
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-width: 400px; /* Limit the width of the form */
+  }
+  
+  .building-input-form h2 {
+    margin-bottom: 20px;
+  }
+  
+  .building-input-form h3 {
+    margin: 10px 0 5px;
+  }
+  
+  .building-input-form label {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .building-input-form input {
+    width: 100%; /* Full width inputs */
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .submit-button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+  }
+  
+  .submit-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }
+  
