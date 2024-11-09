@@ -16,11 +16,23 @@
 // module.exports = supabase;
 
 
+// // services/supabaseClient.js
+// const { createClient } = require('@supabase/supabase-js');
+
+// const supabaseUrl = process.env.SUPABASE_URL; // Add to .env
+// const supabaseKey = process.env.SUPABASE_KEY; // Add to .env
+// const supabase = createClient(supabaseUrl, supabaseKey);
+
+// module.exports = supabase;
+
+
 // services/supabaseClient.js
 const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
 
-const supabaseUrl = process.env.SUPABASE_URL; // Add to .env
-const supabaseKey = process.env.SUPABASE_KEY; // Add to .env
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+);
 
 module.exports = supabase;
