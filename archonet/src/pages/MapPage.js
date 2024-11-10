@@ -1127,6 +1127,426 @@
 
 // export default SiteMap;
 
+// import React, { useState, useRef, useEffect } from 'react';
+// import mapboxgl from 'mapbox-gl';
+// import MapboxDraw from '@mapbox/mapbox-gl-draw';
+// import 'mapbox-gl/dist/mapbox-gl.css';
+// import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+// import * as turf from '@turf/turf';
+// import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+// import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+// import Toolbar from '../components/Toolbar';
+// import RegulatoryForm from '../pages/RegulatoryForm';
+// import '../style/MapPage.css';
+
+// const API_BASE_URL = 'http://localhost:5001/api/map';
+
+// mapboxgl.accessToken = 'pk.eyJ1IjoicmFteWFrYW50IiwiYSI6ImNtMXViZDJyaDBhdHAycnM1OXh6Y2VhYncifQ.m3pXYCrfAAj0Ojt-jb0Gyw';
+
+// const SiteMap = () => {
+//   const [polygonCoords, setPolygonCoords] = useState([]);
+//   const [trees, setTrees] = useState([]);
+//   const [area, setArea] = useState(null);
+//   const [sideLengths, setSideLengths] = useState([]);
+//   const [showRegulatoryForm, setShowRegulatoryForm] = useState(false);
+//   const mapContainerRef = useRef(null);
+//   const mapRef = useRef(null);
+//   const drawRef = useRef(null);
+//   const polygonRef = useRef(null);
+//   const lengthMarkersRef = useRef([]);
+
+//   // Calculate area and side lengths of the drawn polygon
+//   const calculateAreaAndLengths = (coords) => {
+//     const polygon = turf.polygon([coords]);
+//     const calculatedArea = turf.area(polygon);
+//     setArea(calculatedArea);
+
+//     const lengths = coords.slice(0, -1).map((start, i) => {
+//       const end = coords[i + 1];
+//       const line = turf.lineString([start, end]);
+//       return {
+//         length: turf.length(line, { units: 'meters' }),
+//         midpoint: turf.midpoint(turf.point(start), turf.point(end)).geometry.coordinates
+//       };
+//     });
+//     setSideLengths(lengths);
+
+//     // Remove previous markers
+//     lengthMarkersRef.current.forEach(marker => marker.remove());
+//     lengthMarkersRef.current = [];
+
+//     // Add new markers for the lengths
+//     lengths.forEach(({ length, midpoint }) => {
+//       const el = document.createElement('div');
+//       el.className = 'length-marker';
+//       el.innerText = `${length.toFixed(2)} m`;
+
+//       const marker = new mapboxgl.Marker({ element: el })
+//         .setLngLat(midpoint)
+//         .addTo(mapRef.current);
+
+//       lengthMarkersRef.current.push(marker);
+//     });
+//   };
+
+//   // Save polygon data to backend
+//   const savePolygon = async (coords, calculatedArea, lengths, treeData) => {
+//     try {
+//       const response = await fetch(`${API_BASE_URL}/polygon`, {
+//         method: 'POST',
+//         headers: { 
+//           'Content-Type': 'application/json'
+//         },
+//         credentials: 'include',
+//         body: JSON.stringify({
+//           coordinates: coords,
+//           area: calculatedArea,
+//           sideLengths: lengths,
+//           trees: treeData
+//         })
+//       });
+
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new Error(errorData.error || 'Failed to save polygon');
+//       }
+
+//       const result = await response.json();
+//       console.log('Polygon saved successfully!', result.polygon);
+//       return result;
+//     } catch (error) {
+//       console.error('Error saving polygon:', error);
+//       throw error;
+//     }
+//   };
+
+//   // Save location search data to backend
+//   const saveSearchLocation = async (locationData) => {
+//     try {
+//       const response = await fetch(`${API_BASE_URL}/search-location`, {
+//         method: 'POST',
+//         headers: { 
+//           'Content-Type': 'application/json'
+//         },
+//         credentials: 'include',
+//         body: JSON.stringify(locationData)
+//       });
+
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new Error(errorData.error || 'Failed to save search location');
+//       }
+
+//       const result = await response.json();
+//       console.log('Search location saved successfully!', result);
+//       return result;
+//     } catch (error) {
+//       console.error('Error saving search location:', error);
+//       throw error;
+//     }
+//   };
+
+//   // Initialize map and drawing tools
+//   useEffect(() => {
+//     if (!mapContainerRef.current) return;
+
+//     try {
+//       mapRef.current = new mapboxgl.Map({
+//         container: mapContainerRef.current,
+//         style: 'mapbox://styles/mapbox/streets-v11',
+//         center: [72.8777, 19.0760],
+//         zoom: 18,
+//       });
+
+//       // Initialize Mapbox Draw
+//       drawRef.current = new MapboxDraw({
+//         displayControlsDefault: false,
+//         controls: {
+//           polygon: true,
+//           trash: true
+//         }
+//       });
+//       mapRef.current.addControl(drawRef.current);
+
+//       // Initialize Geocoder
+//       const geocoder = new MapboxGeocoder({
+//         accessToken: mapboxgl.accessToken,
+//         mapboxgl: mapboxgl
+//       });
+//       mapRef.current.addControl(geocoder);
+
+//       // Handle location search
+//       geocoder.on('result', async (event) => {
+//         const { text, center, place_name } = event.result;
+//         const [lng, lat] = center;
+
+//         try {
+//           await saveSearchLocation({
+//             query: text,
+//             place_name,
+//             lng,
+//             lat
+//           });
+//         } catch (error) {
+//           console.error('Error in location search:', error);
+//         }
+//       });
+
+//       // Handle polygon draw
+//       mapRef.current.on('draw.create', async (e) => {
+//         const polygon = e.features[0];
+//         const coords = polygon.geometry.coordinates[0];
+//         setPolygonCoords(coords);
+//         polygonRef.current = polygon;
+
+//         calculateAreaAndLengths(coords);
+
+//         try {
+//           await savePolygon(coords, area, sideLengths, trees);
+//         } catch (error) {
+//           console.error('Error in polygon creation:', error);
+//         }
+//       });
+
+//       return () => {
+//         if (mapRef.current) {
+//           mapRef.current.remove();
+//           mapRef.current = null;
+//         }
+//       };
+//     } catch (error) {
+//       console.error('Error initializing map:', error);
+//     }
+//   }, []);
+
+//   // Add a tree marker
+//   const addTree = async (lng, lat) => {
+//     if (!polygonRef.current || !polygonRef.current.id) {
+//       console.error('No active polygon');
+//       return;
+//     }
+
+//     try {
+//       const response = await fetch(`${API_BASE_URL}/tree`, {
+//         method: 'POST',
+//         headers: { 
+//           'Content-Type': 'application/json'
+//         },
+//         credentials: 'include',
+//         body: JSON.stringify({ 
+//           polygonId: polygonRef.current.id,
+//           lng,
+//           lat
+//         })
+//       });
+
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new Error(errorData.error || 'Failed to save tree');
+//       }
+
+//       const result = await response.json();
+//       console.log('Tree saved successfully!', result);
+//       setTrees([...trees, { lng, lat }]);
+//     } catch (error) {
+//       console.error('Error adding tree:', error);
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <div className="map-container" ref={mapContainerRef}></div>
+//       <Toolbar onAddTree={addTree} onShowRegulatoryForm={() => setShowRegulatoryForm(true)} />
+//       {showRegulatoryForm && <RegulatoryForm />}
+//     </div>
+//   );
+// };
+
+// export default SiteMap;
+
+
+// import React, { useState, useRef, useEffect } from 'react';
+// import mapboxgl from 'mapbox-gl';
+// import MapboxDraw from '@mapbox/mapbox-gl-draw';
+// import 'mapbox-gl/dist/mapbox-gl.css';
+// import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+// import * as turf from '@turf/turf';
+// import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+// import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+// import Toolbar from '../components/Toolbar';
+// import RegulatoryForm from '../pages/RegulatoryForm';
+// import '../style/MapPage.css';
+
+// const API_BASE_URL = 'http://localhost:5001/api/map';
+// mapboxgl.accessToken = 'pk.eyJ1IjoicmFteWFrYW50IiwiYSI6ImNtMXViZDJyaDBhdHAycnM1OXh6Y2VhYncifQ.m3pXYCrfAAj0Ojt-jb0Gyw';
+
+// const SiteMap = () => {
+//   const [polygonCoords, setPolygonCoords] = useState([]);
+//   const [trees, setTrees] = useState([]);
+//   const mapContainerRef = useRef(null);
+//   const mapRef = useRef(null);
+//   const drawRef = useRef(null);
+//   const polygonRef = useRef(null);
+//   const lengthMarkersRef = useRef([]);
+
+//   const calculateAreaAndLengths = (coords) => {
+//     const polygon = turf.polygon([coords]);
+//     const calculatedArea = turf.area(polygon);
+
+//     const lengths = coords.slice(0, -1).map((start, i) => {
+//       const end = coords[i + 1];
+//       const line = turf.lineString([start, end]);
+//       return {
+//         length: turf.length(line, { units: 'meters' }),
+//         midpoint: turf.midpoint(turf.point(start), turf.point(end)).geometry.coordinates
+//       };
+//     });
+
+//     // Clear old markers and add new ones
+//     lengthMarkersRef.current.forEach(marker => marker.remove());
+//     lengthMarkersRef.current = [];
+//     lengths.forEach(({ length, midpoint }) => {
+//       const el = document.createElement('div');
+//       el.className = 'length-marker';
+//       el.innerText = `${length.toFixed(2)} m`;
+//       const marker = new mapboxgl.Marker({ element: el })
+//         .setLngLat(midpoint)
+//         .addTo(mapRef.current);
+//       lengthMarkersRef.current.push(marker);
+//     });
+
+//     return { calculatedArea, lengths };
+//   };
+
+//   const savePolygon = async (coords, calculatedArea, lengths, treeData) => {
+//     console.log('Saving polygon with data:', {
+//       coordinates: coords,
+//       area: calculatedArea,
+//       sideLengths: lengths,
+//       trees: treeData
+//     });
+
+//     try {
+//       const response = await fetch(`${API_BASE_URL}/polygon`, {
+//         method: 'POST',
+//         headers: { 
+//           'Content-Type': 'application/json'
+//         },
+//         credentials: 'include',
+//         body: JSON.stringify({
+//           coordinates: coords,
+//           area: calculatedArea,
+//           sideLengths: lengths,
+//           trees: treeData
+//         })
+//       });
+
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new Error(errorData.error || 'Failed to save polygon');
+//       }
+
+//       const result = await response.json();
+//       console.log('Polygon saved successfully!', result.polygon);
+//       return result;
+//     } catch (error) {
+//       console.error('Error saving polygon:', error);
+//       throw error;
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (!mapContainerRef.current) return;
+
+//     mapRef.current = new mapboxgl.Map({
+//       container: mapContainerRef.current,
+//       style: 'mapbox://styles/mapbox/streets-v11',
+//       center: [72.8777, 19.0760],
+//       zoom: 18,
+//     });
+
+//     drawRef.current = new MapboxDraw({
+//       displayControlsDefault: false,
+//       controls: {
+//         polygon: true,
+//         trash: true
+//       }
+//     });
+//     mapRef.current.addControl(drawRef.current);
+
+//     const geocoder = new MapboxGeocoder({
+//       accessToken: mapboxgl.accessToken,
+//       mapboxgl: mapboxgl
+//     });
+//     mapRef.current.addControl(geocoder);
+
+//     mapRef.current.on('draw.create', async (e) => {
+//       const polygon = e.features[0];
+//       const coords = polygon.geometry.coordinates[0];
+//       setPolygonCoords(coords);
+//       polygonRef.current = polygon;
+
+//       const { calculatedArea, lengths } = calculateAreaAndLengths(coords);
+
+//       try {
+//         await savePolygon(coords, calculatedArea, lengths, trees);
+//       } catch (error) {
+//         console.error('Error in polygon creation:', error);
+//       }
+//     });
+
+//     return () => {
+//       if (mapRef.current) {
+//         mapRef.current.remove();
+//         mapRef.current = null;
+//       }
+//     };
+//   }, []);
+
+//   const addTree = async (lng, lat) => {
+//     if (!polygonRef.current || !polygonRef.current.id) {
+//       console.error('No active polygon');
+//       return;
+//     }
+
+//     try {
+//       const response = await fetch(`${API_BASE_URL}/tree`, {
+//         method: 'POST',
+//         headers: { 
+//           'Content-Type': 'application/json'
+//         },
+//         credentials: 'include',
+//         body: JSON.stringify({ 
+//           polygonId: polygonRef.current.id,
+//           lng,
+//           lat
+//         })
+//       });
+
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new Error(errorData.error || 'Failed to save tree');
+//       }
+
+//       const result = await response.json();
+//       setTrees([...trees, { lng, lat }]);
+//       console.log('Tree saved successfully!', result);
+//     } catch (error) {
+//       console.error('Error adding tree:', error);
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <div className="map-container" ref={mapContainerRef}></div>
+//       <Toolbar onAddTree={addTree} />
+//     </div>
+//   );
+// };
+
+// export default SiteMap;
+
+
 import React, { useState, useRef, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
@@ -1140,26 +1560,20 @@ import RegulatoryForm from '../pages/RegulatoryForm';
 import '../style/MapPage.css';
 
 const API_BASE_URL = 'http://localhost:5001/api/map';
-
 mapboxgl.accessToken = 'pk.eyJ1IjoicmFteWFrYW50IiwiYSI6ImNtMXViZDJyaDBhdHAycnM1OXh6Y2VhYncifQ.m3pXYCrfAAj0Ojt-jb0Gyw';
 
 const SiteMap = () => {
   const [polygonCoords, setPolygonCoords] = useState([]);
   const [trees, setTrees] = useState([]);
-  const [area, setArea] = useState(null);
-  const [sideLengths, setSideLengths] = useState([]);
-  const [showRegulatoryForm, setShowRegulatoryForm] = useState(false);
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const drawRef = useRef(null);
   const polygonRef = useRef(null);
   const lengthMarkersRef = useRef([]);
 
-  // Calculate area and side lengths of the drawn polygon
   const calculateAreaAndLengths = (coords) => {
     const polygon = turf.polygon([coords]);
     const calculatedArea = turf.area(polygon);
-    setArea(calculatedArea);
 
     const lengths = coords.slice(0, -1).map((start, i) => {
       const end = coords[i + 1];
@@ -1169,41 +1583,31 @@ const SiteMap = () => {
         midpoint: turf.midpoint(turf.point(start), turf.point(end)).geometry.coordinates
       };
     });
-    setSideLengths(lengths);
 
-    // Remove previous markers
     lengthMarkersRef.current.forEach(marker => marker.remove());
     lengthMarkersRef.current = [];
-
-    // Add new markers for the lengths
     lengths.forEach(({ length, midpoint }) => {
       const el = document.createElement('div');
       el.className = 'length-marker';
       el.innerText = `${length.toFixed(2)} m`;
-
       const marker = new mapboxgl.Marker({ element: el })
         .setLngLat(midpoint)
         .addTo(mapRef.current);
-
       lengthMarkersRef.current.push(marker);
     });
+
+    return { calculatedArea, lengths };
   };
 
-  // Save polygon data to backend
   const savePolygon = async (coords, calculatedArea, lengths, treeData) => {
+    console.log('Saving polygon with data:', { coordinates: coords, area: calculatedArea, sideLengths: lengths, trees: treeData });
+
     try {
       const response = await fetch(`${API_BASE_URL}/polygon`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({
-          coordinates: coords,
-          area: calculatedArea,
-          sideLengths: lengths,
-          trees: treeData
-        })
+        body: JSON.stringify({ coordinates: coords, area: calculatedArea, sideLengths: lengths, trees: treeData })
       });
 
       if (!response.ok) {
@@ -1220,14 +1624,11 @@ const SiteMap = () => {
     }
   };
 
-  // Save location search data to backend
   const saveSearchLocation = async (locationData) => {
     try {
       const response = await fetch(`${API_BASE_URL}/search-location`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(locationData)
       });
@@ -1238,7 +1639,7 @@ const SiteMap = () => {
       }
 
       const result = await response.json();
-      console.log('Search location saved successfully!', result);
+      console.log('Search location saved result:', result);
       return result;
     } catch (error) {
       console.error('Error saving search location:', error);
@@ -1246,80 +1647,64 @@ const SiteMap = () => {
     }
   };
 
-  // Initialize map and drawing tools
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    try {
-      mapRef.current = new mapboxgl.Map({
-        container: mapContainerRef.current,
-        style: 'mapbox://styles/mapbox/streets-v11',
-        center: [72.8777, 19.0760],
-        zoom: 18,
-      });
+    mapRef.current = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [72.8777, 19.0760],
+      zoom: 18,
+    });
 
-      // Initialize Mapbox Draw
-      drawRef.current = new MapboxDraw({
-        displayControlsDefault: false,
-        controls: {
-          polygon: true,
-          trash: true
-        }
-      });
-      mapRef.current.addControl(drawRef.current);
+    drawRef.current = new MapboxDraw({
+      displayControlsDefault: false,
+      controls: { polygon: true, trash: true }
+    });
+    mapRef.current.addControl(drawRef.current);
 
-      // Initialize Geocoder
-      const geocoder = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl: mapboxgl
-      });
-      mapRef.current.addControl(geocoder);
+    const geocoder = new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      mapboxgl: mapboxgl
+    });
+    mapRef.current.addControl(geocoder);
 
-      // Handle location search
-      geocoder.on('result', async (event) => {
-        const { text, center, place_name } = event.result;
-        const [lng, lat] = center;
+    geocoder.on('result', async (event) => {
+      const { text, center, place_name } = event.result;
+      const [lng, lat] = center;
 
-        try {
-          await saveSearchLocation({
-            query: text,
-            place_name,
-            lng,
-            lat
-          });
-        } catch (error) {
-          console.error('Error in location search:', error);
-        }
-      });
+      console.log('Geocoder result:', { text, place_name, lng, lat });
 
-      // Handle polygon draw
-      mapRef.current.on('draw.create', async (e) => {
-        const polygon = e.features[0];
-        const coords = polygon.geometry.coordinates[0];
-        setPolygonCoords(coords);
-        polygonRef.current = polygon;
+      try {
+        await saveSearchLocation({ query: text, place_name, lng, lat });
+      } catch (error) {
+        console.error('Error saving search location:', error);
+      }
+    });
 
-        calculateAreaAndLengths(coords);
+    mapRef.current.on('draw.create', async (e) => {
+      const polygon = e.features[0];
+      const coords = polygon.geometry.coordinates[0];
+      setPolygonCoords(coords);
+      polygonRef.current = polygon;
 
-        try {
-          await savePolygon(coords, area, sideLengths, trees);
-        } catch (error) {
-          console.error('Error in polygon creation:', error);
-        }
-      });
+      const { calculatedArea, lengths } = calculateAreaAndLengths(coords);
 
-      return () => {
-        if (mapRef.current) {
-          mapRef.current.remove();
-          mapRef.current = null;
-        }
-      };
-    } catch (error) {
-      console.error('Error initializing map:', error);
-    }
+      try {
+        await savePolygon(coords, calculatedArea, lengths, trees);
+      } catch (error) {
+        console.error('Error in polygon creation:', error);
+      }
+    });
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
   }, []);
 
-  // Add a tree marker
   const addTree = async (lng, lat) => {
     if (!polygonRef.current || !polygonRef.current.id) {
       console.error('No active polygon');
@@ -1329,15 +1714,9 @@ const SiteMap = () => {
     try {
       const response = await fetch(`${API_BASE_URL}/tree`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ 
-          polygonId: polygonRef.current.id,
-          lng,
-          lat
-        })
+        body: JSON.stringify({ polygonId: polygonRef.current.id, lng, lat })
       });
 
       if (!response.ok) {
@@ -1346,8 +1725,8 @@ const SiteMap = () => {
       }
 
       const result = await response.json();
-      console.log('Tree saved successfully!', result);
       setTrees([...trees, { lng, lat }]);
+      console.log('Tree saved successfully!', result);
     } catch (error) {
       console.error('Error adding tree:', error);
     }
@@ -1356,8 +1735,7 @@ const SiteMap = () => {
   return (
     <div>
       <div className="map-container" ref={mapContainerRef}></div>
-      <Toolbar onAddTree={addTree} onShowRegulatoryForm={() => setShowRegulatoryForm(true)} />
-      {showRegulatoryForm && <RegulatoryForm />}
+      <Toolbar onAddTree={addTree} />
     </div>
   );
 };
